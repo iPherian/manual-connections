@@ -124,6 +124,17 @@ At this point, internet should work via VPN.
 --> to disconnect the VPN, run:
 $ wg-quick down pia"
 
+if [[ -n "$LOCAL_ROUTES" ]]; then
+	echo
+	echo Adding more specific local routes...
+	default_gw=$(ip route list default | cut -f 3 -d ' ')
+	echo Found default gateway $default_gateway
+	for local in $LOCAL_ROUTES; do
+		echo Adding $local via $default_gw
+		ip route add $local via $default_gw
+	done
+fi
+
 # This section will stop the script if PIA_PF is not set to "true".
 if [ "$PIA_PF" != true ]; then
   echo
