@@ -149,6 +149,23 @@ OpenVPN TCP: $bestServer_OT_IP // $bestServer_OT_hostname
 OpenVPN UDP: $bestServer_OU_IP // $bestServer_OU_hostname
 "
 
+if [[ -e $PIA_AUTH_FILE ]]; then
+	authFileLen=$(wc -l "$PIA_AUTH_FILE")
+	if [[ $authFileLen != 2 ]]; then
+		echo This script will grab your PIA username from the first
+		echo line if the file specified by PIA_AUTH_FILE, and your
+		echo PIA password from the last line.  
+		echo
+		echo Your current file \""$PIA_AUTH_FILE"\" has "$authFileLen" lines.
+	fi
+	if [[ ! $PIA_USER ]]; then
+		PIA_USER=$(head -1 "$PIA_AUTH_FILE")
+	fi
+	if [[ ! $PIA_PASS ]]; then
+		PIA_PASS=$(tail -1 "$PIA_AUTH_FILE")
+	fi
+fi
+
 if [[ ! $PIA_USER || ! $PIA_PASS ]]; then
   echo If you want this script to automatically get a token from the Meta
   echo service, please add the variables PIA_USER and PIA_PASS. Example:

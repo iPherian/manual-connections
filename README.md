@@ -1,6 +1,7 @@
 # Modifications from the original
  * Add PIA_REGION environment variable which forces the specified region.
  * Add LOCAL_ROUTES environment variable which lets you add more specific routes.
+ * Add PIA_AUTH_FILE environment variable which specifies where to get your username/password from.
 
 # Manual PIA VPN Connections
  __This project is "Work in Progress"__
