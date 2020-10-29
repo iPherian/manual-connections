@@ -25,6 +25,7 @@
 # 10    fatal bind port failure
 # 20    port expiration
 
+. ./required.sh
 . ./funcs.sh
 
 # Check if the mandatory environment variables are set.

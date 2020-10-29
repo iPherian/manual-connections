@@ -19,6 +19,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+. ./required.sh
 . ./funcs.sh
 
 # This function allows you to check if the required tools have been installed.
