@@ -2,6 +2,14 @@
 
 This is a fork of the pia manual connections script.
 
+## Config
+
+The following ENV vars are optional:
+
+| ENV Var | Function |
+|-------|------|
+|```PIA_REGION=swiss```|Region to connect to. Available server region ids are listed [here](https://serverlist.piaservers.net/vpninfo/servers/v4). Example values include ```us_california```, ```ca_ontario```, and ```swiss```. If left empty, reverts to autodetecting the fastest region.|
+
 # Manual PIA VPN Connections
 
 This repository contains documentation on how to create native WireGuard and OpenVPN connections to our __NextGen network__, and also on how to enable Port Forwarding in case you require this feature. You will find a lot of information below. However if you prefer quick test, here is the __TL/DR__:
