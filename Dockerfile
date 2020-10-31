@@ -17,7 +17,7 @@ WORKDIR /src
 
 VOLUME /etc/wireguard
 
-ENV LOCAL_ROUTES ""
+ENV PIA_LOCAL_ROUTES ""
 ENV PIA_REGION ""
 
-CMD LOCAL_ROUTES="$LOCAL_ROUTES" PIA_AUTH_FILE=/etc/wireguard/auth.conf PIA_AUTOCONNECT=wireguard PIA_PF=true PIA_REGION="$PIA_REGION" get_region_and_token.sh
+CMD PIA_LOCAL_ROUTES="$PIA_LOCAL_ROUTES" PIA_AUTH_FILE=/etc/wireguard/auth.conf PIA_AUTOCONNECT=wireguard PIA_PF=true PIA_REGION="$PIA_REGION" get_region_and_token.sh
