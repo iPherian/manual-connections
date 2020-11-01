@@ -21,29 +21,25 @@ The following ENV vars are optional:
 |```PIA_REGION=swiss```|Region to connect to. Available server region ids are listed [here](https://serverlist.piaservers.net/vpninfo/servers/v4). Example values include ```us_california```, ```ca_ontario```, and ```swiss```. If left empty, reverts to autodetecting the fastest region.|
 |```PIA_LOCAL_ROUTES=xxxxx```|Custom local routes. Many can be specified seperated by a space. (Only applies to wireguard).|
 
-
 # Manual PIA VPN Connections
- __This project is "Work in Progress"__
 
-This repository contains documentation on how to create native WireGuard connections to our __NextGen network__, and also on how to enable Port Forwarding in case you require this feature. Documentation on OpenVPN will follow soon enough.
+This repository contains documentation on how to create native WireGuard and OpenVPN connections to our __NextGen network__, and also on how to enable Port Forwarding in case you require this feature. You will find a lot of information below. However if you prefer quick test, here is the __TL/DR__:
 
-You will find a lot of information bellow. However if you prefer a hands-on approach, here is the __TL/DR__:
- * clone this repo: `git clone https://github.com/pia-foss/manual-connections.git`
- * use `get_region_and_token.sh` to get the best region and a token
- * use `connect_to_wireguard_with_token.sh` to create a WireGuard connection with/without PF
-
-Here is a oneliner example:
 ```
-sudo PIA_AUTOCONNECT=wireguard PIA_USER=p0123456 PIA_PASS=xxxxxxxxxx ./get_region_and_token.sh
+git clone https://github.com/pia-foss/manual-connections.git
+cd manual-connections
+./run_setup.sh
 ```
+
+The scripts were written so that they are easy to read and to modify. We hope you will enjoy forking the repo and customizing the scripts for your setup!
 
 ### Dependencies
 
 In order for the scripts to work (probably even if you do a manual setup), you will need the following packages:
  * `curl`
  * `jq`
- * (only for WireGuard) `wireguard-tools` and wireguard kernel module
- * (only for OpenVPN) `openvpn` (however the script is not available yet)
+ * (only for WireGuard) `wg-quick` and `wireguard` kernel module
+ * (only for OpenVPN) `openvpn`
 
 ### Confirmed systems and distributions
 
@@ -63,25 +59,25 @@ The functionality of the scripts within this repository has been tested and conf
 
 ## PIA Port Forwarding
 
-The PIA Port Forwarding service (a.k.a. PF) allows you run services on your own devices, and expose them to the internet by using the PIA VPN Network. The easiest way to set this up is by using a native PIA aplications. In case you require port forwarding on native clients, please follow this documentation in order to enable port forwarding for your VPN connection.
+The PIA Port Forwarding service (a.k.a. PF) allows you run services on your own devices, and expose them to the internet by using the PIA VPN Network. The easiest way to set this up is by using a native PIA aplication. In case you require port forwarding on native clients, please follow this documentation in order to enable port forwarding for your VPN connection.
 
 This service can be used only AFTER establishing a VPN connection.
 
 ## Automated setup of VPN and/or PF
 
-In order to help you use VPN services and PF on any device, we have prepare a few bash scripts that should help you through the process of setting everything up. The scripts also contain a lot of comments, just in case you require detailed information regarding how the technology works.
+In order to help you use VPN services and PF on any device, we have prepared a few bash scripts that should help you through the process of setting everything up. The scripts also contain a lot of comments, just in case you require detailed information regarding how the technology works. The functionality is controlled via environment variables, so that you have an easy time automating your setup.
 
 Here is a list of scripts you could find useful:
- * [Get the best region and a token](get_region_and_token.sh): This script helps you to get the best region and also to get a token for VPN authentication. The script will extend it's functionality if you add extra environment variables. Adding your PIA credentials will allow the script to also get a VPN token. The script can also trigger the WireGuard script to create a connection, if you specify `PIA_AUTOCONNECT=wireguard`.
- * [Connect to WireGuard](connect_to_wireguard_with_token.sh): This script allow you to connect to the VPN server via WireGuard. You can specify `PIA_PF=true` if you also wish to get Port Forwarding for your connection.
- * Connect to OpenVPN: We are still working on this script.
- * [Enable Port Forwarding](port_forwarding.sh): Enables you to add Port Forwarding to an existing VPN connection.
+ * [Get the best region and a token](get_region_and_token.sh): This script helps you to get the best region and also to get a token for VPN authentication. Adding your PIA credentials to env vars `PIA_USER` and `PIA_PASS` will allow the script to also get a VPN token. The script can also trigger the WireGuard script to create a connection, if you specify `PIA_AUTOCONNECT=wireguard` or `PIA_AUTOCONNECT=openvpn_udp_standard`
+ * [Connect to WireGuard](connect_to_wireguard_with_token.sh): This script allows you to connect to the VPN server via WireGuard.
+ * [Connect to OpenVPN](connect_to_openvpn_with_token.sh): This script allows you to connect to the VPN server via OpenVPN.
+ * [Enable Port Forwarding](port_forwarding.sh): Enables you to add Port Forwarding to an existing VPN connection. Adding the environment variable `PIA_PF=true` to any of the previous scripts will also trigger this script.
 
 ## Manual setup of PF
 
 To use port forwarding on the NextGen network, first of all establish a connection with your favorite protocol. After this, you will need to find the private IP of the gateway you are connected to. In case you are WireGuard, the gateway will be part of the JSON response you get from the server, as you can see in the [bash script](https://github.com/pia-foss/manual-connections/blob/master/wireguard_and_pf.sh#L119). In case you are using OpenVPN, you can find the gateway by checking the routing table with `ip route s t all`.
 
-After connecting and finding out what the gateway is, get your payload and your signature by calling `getSignature` via HTTPS on port 19999. You will have to add your token as a GET var to proove you actually have an active account.
+After connecting and finding out what the gateway is, get your payload and your signature by calling `getSignature` via HTTPS on port 19999. You will have to add your token as a GET var to prove you actually have an active account.
 
 Example:
 ```bash
