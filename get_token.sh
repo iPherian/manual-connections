@@ -23,12 +23,15 @@
 . ./funcs.sh
 
 print_auth_file_format_msg() {
-  1>&2 echo The format of PIA_AUTH_FILE is: On the first line, your
-  1>&2 echo PIA username and on the second your PIA password.
+  1>&2 echo The format of the PIA_AUTH_FILE is: On the first line,
+  1>&2 echo your PIA username and on the second your PIA password.
 }
 
-if [[ -e $PIA_AUTH_FILE ]]; then
-  authFileLen=$(wc -l "$PIA_AUTH_FILE")
+if [[ -n "$PIA_AUTH_FILE" ]] && [[ ! -e "$PIA_AUTH_FILE" ]]; then
+  1>&2 echo Warning: PIA_AUTH_FILE was specified but does not exist:
+  1>&2 echo $PIA_AUTH_FILE
+elif [[ -e "$PIA_AUTH_FILE" ]]; then
+  authFileLen=$(wc -l "$PIA_AUTH_FILE" | awk "{print \$1}")
   if [[ $authFileLen -lt 2 ]]; then
     print_auth_file_format_msg  
     1>&2 echo
