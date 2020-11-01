@@ -1,6 +1,25 @@
 # Fork Description
 
-This is a fork of the pia manual connections script.
+This is a fork of the pia manual connections script which enables running the PIA vpn in a docker container in addition to normal usage.
+
+## Config
+
+Authentication:
+
+(either ```PIA_AUTH_FILE``` or ```PIA_USER```+```PIA_PASS``` is required)
+
+| ENV Var | Function |
+|-------|------|
+|```PIA_AUTH_FILE=path```|A file to read your username and password from. The format should be: username on first line, password on second.|
+|```PIA_USER=p0123456```|Your username.|
+|```PIA_PASS=xxxxx```|Your password.|
+
+The following ENV vars are optional:
+
+| ENV Var | Function |
+|-------|------|
+|```PIA_REGION=swiss```|Region to connect to. Available server region ids are listed [here](https://serverlist.piaservers.net/vpninfo/servers/v4). Example values include ```us_california```, ```ca_ontario```, and ```swiss```. If left empty, reverts to autodetecting the fastest region.|
+|```PIA_LOCAL_ROUTES=xxxxx```|Custom local routes. Many can be specified seperated by a space. (Only applies to wireguard).|
 
 # Manual PIA VPN Connections
 

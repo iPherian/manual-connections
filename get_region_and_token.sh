@@ -89,11 +89,24 @@ else
     jq -r '.regions[] |
     .servers.meta[0].ip+" "+.id+" "+.name+" "+(.geo|tostring)' )"
 fi
-echo Testing regions that respond \
-  faster than $MAX_LATENCY seconds:
-bestRegion="$(echo "$summarized_region_data" |
-  xargs -I{} bash -c 'printServerLatency {}' |
-  sort | head -1 | awk '{ print $2 }')"
+
+if [[ -n $PIA_REGION ]]; then
+  echo -n Checking if specified region works...
+  bestRegion="$(echo "$summarized_region_data" | awk "{if (\$2 == \"$PIA_REGION\") print \$2;}")"
+  if [[ -n $bestRegion ]]; then
+    echo yes
+  else
+    echo no.
+    echo No servers found in $PIA_REGION with the required features.
+    exit 1
+  fi
+else
+  echo Testing regions that respond \
+    faster than $MAX_LATENCY seconds:
+  bestRegion="$(echo "$summarized_region_data" |
+    xargs -I{} bash -c 'printServerLatency {}' |
+    sort | head -1 | awk '{ print $2 }')"
+fi
 
 if [ -z "$bestRegion" ]; then
   echo ...
@@ -135,6 +148,24 @@ WireGuard: $bestServer_WG_IP // $bestServer_WG_hostname
 OpenVPN TCP: $bestServer_OT_IP // $bestServer_OT_hostname
 OpenVPN UDP: $bestServer_OU_IP // $bestServer_OU_hostname
 "
+
+if [[ -e $PIA_AUTH_FILE ]]; then
+  authFileLen=$(wc -l "$PIA_AUTH_FILE")
+  if [[ $authFileLen -lt 2 ]]; then
+    1>&2 echo This script will grab your PIA username from the first
+    1>&2 echo line if the file specified by PIA_AUTH_FILE, and your
+    1>&2 echo PIA password from the last line.  
+    1>&2 echo
+    1>&2 echo Your current file \""$PIA_AUTH_FILE"\" has "$authFileLen" lines, but requires at least two.
+    exit 1;
+  fi
+  if [[ ! $PIA_USER ]]; then
+    PIA_USER=$(head -1 "$PIA_AUTH_FILE")
+  fi
+  if [[ ! $PIA_PASS ]]; then
+    PIA_PASS=$(head -2 "$PIA_AUTH_FILE" | tail -1 )
+  fi
+fi
 
 if [[ ! $PIA_USER || ! $PIA_PASS ]]; then
   echo If you want this script to automatically get a token from the Meta
