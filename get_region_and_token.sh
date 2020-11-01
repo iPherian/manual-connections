@@ -150,20 +150,21 @@ OpenVPN UDP: $bestServer_OU_IP // $bestServer_OU_hostname
 "
 
 if [[ -e $PIA_AUTH_FILE ]]; then
-	authFileLen=$(wc -l "$PIA_AUTH_FILE")
-	if [[ $authFileLen != 2 ]]; then
-		echo This script will grab your PIA username from the first
-		echo line if the file specified by PIA_AUTH_FILE, and your
-		echo PIA password from the last line.  
-		echo
-		echo Your current file \""$PIA_AUTH_FILE"\" has "$authFileLen" lines.
-	fi
-	if [[ ! $PIA_USER ]]; then
-		PIA_USER=$(head -1 "$PIA_AUTH_FILE")
-	fi
-	if [[ ! $PIA_PASS ]]; then
-		PIA_PASS=$(tail -1 "$PIA_AUTH_FILE")
-	fi
+  authFileLen=$(wc -l "$PIA_AUTH_FILE")
+  if [[ $authFileLen -lt 2 ]]; then
+    1>&2 echo This script will grab your PIA username from the first
+    1>&2 echo line if the file specified by PIA_AUTH_FILE, and your
+    1>&2 echo PIA password from the last line.  
+    1>&2 echo
+    1>&2 echo Your current file \""$PIA_AUTH_FILE"\" has "$authFileLen" lines, but requires at least two.
+    exit 1;
+  fi
+  if [[ ! $PIA_USER ]]; then
+    PIA_USER=$(head -1 "$PIA_AUTH_FILE")
+  fi
+  if [[ ! $PIA_PASS ]]; then
+    PIA_PASS=$(head -2 "$PIA_AUTH_FILE" | tail -1 )
+  fi
 fi
 
 if [[ ! $PIA_USER || ! $PIA_PASS ]]; then
