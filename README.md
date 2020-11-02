@@ -6,6 +6,7 @@ This is a fork of the pia manual connections script with support for locked down
 
 * Eternal port forwarding (requests a new port on expiration of old)
   * can run a custom command when a forwarded port is established (see ```PIA_ON_PORT_FORWARD```)
+* Writes forwarded port to file for use by other services (```/opt/piavpn-manual/pia_port```)
 * Can run in a docker container
 
 ## Config

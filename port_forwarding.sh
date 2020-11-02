@@ -92,6 +92,7 @@ signature="$(echo "$payload_and_signature" | jq -r '.signature')"
 # - expires_at: this is the date+time when the port expires
 payload="$(echo "$payload_and_signature" | jq -r '.payload')"
 port="$(echo "$payload" | base64 -d | jq -r '.port')"
+echo $port > "/opt/piavpn-manual/pia_port"
 
 # The port normally expires after 2 months. If you consider
 # 2 months is not enough for your setup, please open a ticket.
