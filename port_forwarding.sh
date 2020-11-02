@@ -104,6 +104,8 @@ echo "The signature is OK.
 
 Trying to bind the port..."
 
+pia_on_port_forward_has_run="false"
+
 # Now we have all required data to create a request to bind the port.
 # We will repeat this request every 15 minutes, in order to keep the port
 # alive. The servers have no mechanism to track your activity, so they
@@ -135,6 +137,15 @@ while true; do
     fi
     echo Port $port refreshed on $(date). \
       This port will expire on $(date --date="$expires_at")
+    if [[ -n "$PIA_ON_PORT_FORWARD" ]] && [[ "$pia_on_port_forward_has_run" != "true" ]]; then
+      eval $PIA_ON_PORT_FORWARD $port
+      ret=$?
+      if [[ $ret -ne 0 ]]; then
+        1>&2 echo "PIA_ON_PORT_FORWARD command failed ($ret)"
+        exit 1
+      fi
+      pia_on_port_forward_has_run="true"
+    fi
 
     # sleep 15 minutes
     sleep 900
