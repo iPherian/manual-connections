@@ -156,6 +156,8 @@ bestServer_OT_IP="$(echo $regionData | jq -r '.servers.ovpntcp[0].ip')"
 bestServer_OT_hostname="$(echo $regionData | jq -r '.servers.ovpntcp[0].cn')"
 bestServer_OU_IP="$(echo $regionData | jq -r '.servers.ovpnudp[0].ip')"
 bestServer_OU_hostname="$(echo $regionData | jq -r '.servers.ovpnudp[0].cn')"
+export PIA_SERVER_META_IP=$bestServer_meta_IP
+export PIA_SERVER_META_HOSTNAME=$bestServer_meta_hostname
 
 echo "The script found the best servers from the region closest to you.
 When connecting to an IP (no matter which protocol), please verify
@@ -170,6 +172,11 @@ OpenVPN UDP: $bestServer_OU_IP // $bestServer_OU_hostname
 "
 
 token="$(./get_token.sh)"
+
+if [[ -z "$token" ]]; then
+  1>&2 echo "Error: Could not get token."
+  exit 1
+fi
 
 # just making sure this variable doesn't contain some strange string
 if [ "$PIA_PF" != true ]; then
