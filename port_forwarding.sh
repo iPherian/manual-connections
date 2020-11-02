@@ -19,6 +19,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# Exit Codes
+#
+# 1     general error
+# 10    fatal bind port failure
+# 20    port expiration
+
+. ./funcs.sh
 
 # Check if the mandatory environment variables are set.
 if [[ ! $PF_GATEWAY || ! $PIA_TOKEN || ! $PF_HOSTNAME ]]; then
@@ -115,7 +122,16 @@ while true; do
     export bind_port_response
     if [ "$(echo "$bind_port_response" | jq -r '.status')" != "OK" ]; then
       echo "The API did not return OK when trying to bind port. Exiting."
-      exit 1
+      now="$(date)"
+      now_secs=$(datetime_to_epoch_secs "$now")
+      expires_at_secs=$(datetime_to_epoch_secs "$expires_at")
+      five_minutes_in_secs=300
+      # if we're a short time away from expiration, the error was probably expiration
+      if (( now_secs > ( expires_at_secs - five_minutes_in_secs ) )); then
+        exit 20 # expiration
+      else
+        exit 10 # fatal bind port failure
+      fi
     fi
     echo Port $port refreshed on $(date). \
       This port will expire on $(date --date="$expires_at")

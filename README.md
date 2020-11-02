@@ -4,6 +4,7 @@ This is a fork of the pia manual connections script with support for locked down
 
 #### Other Features
 
+* Eternal port forwarding (requests a new port on expiration of old)
 * Can run in a docker container
 
 ## Config

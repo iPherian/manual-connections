@@ -195,6 +195,9 @@ if [ "$connected" != true ]; then
   exit 1
 fi
 
+# now that we are inside the vpn, use a local ip for the meta server, it's faster and less error prone.
+export PIA_SERVER_META_IP="10.0.0.1"
+
 echo "Initialization Sequence Complete!
 
 At this point, internet should work via VPN.
@@ -231,4 +234,4 @@ $ PIA_TOKEN=\"$PIA_TOKEN\" \\
 PIA_TOKEN=$PIA_TOKEN \
   PF_GATEWAY="$gateway_ip" \
   PF_HOSTNAME="$OVPN_HOSTNAME" \
-  ./port_forwarding.sh
+  ./port_forwarding_auto.sh

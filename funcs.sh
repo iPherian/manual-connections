@@ -21,6 +21,8 @@
 
 set -a
 
+# Begin Firewall Related
+
 function on_demand_rules_cmd {
   if [[ "$PIA_ON_DEMAND_UFW_RULES" == "true" ]]; then
     eval "$@"
@@ -70,6 +72,13 @@ function ufw_unallow_if_requested {
     return 1
   fi
   on_demand_rules_cmd ufw_unallow $destination
+}
+
+# End Firewall Related
+
+function datetime_to_epoch_secs {
+  datetime="$1"
+  echo $(date --date "$datetime" +'%s')
 }
 
 set +a
