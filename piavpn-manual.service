@@ -1,0 +1,20 @@
+[Unit]
+Description=PIA vpn
+Requires=network-online.target
+After=network-online.target
+
+[Service]
+Type=forking
+Environment="PIA_AUTH_FILE=$AUTH_FILE"
+Environment="PIA_DNS=true"
+Environment="PIA_AUTOCONNECT=openvpn_udp_standard"
+Environment="PIA_PF=false"
+Environment="PIA_REGION=$REGION"
+WorkingDirectory=$INSTALL_LOCATION
+ExecStart=$INSTALL_LOCATION/systemd_launcher.sh
+PIDFile=/opt/piavpn-manual/pia_pid
+TimeoutStartSec=330
+TimeoutStopSec=60
+
+[Install]
+WantedBy=multi-user.target

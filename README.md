@@ -7,6 +7,8 @@ This is a fork of the pia manual connections script with support for locked down
 * Eternal port forwarding (requests a new port on expiration of old)
   * can run a custom command when a forwarded port is established (see ```PIA_ON_PORT_FORWARD```)
 * Writes forwarded port to file for use by other services (```/opt/piavpn-manual/pia_port```)
+* Can run as a systemd service
+  * Instructions: copy *.service file to /etc/systemd/system then customize vars prefixed with $ (e.g. $VAR)
 * Can run in a docker container
 
 ## Config
@@ -38,6 +40,7 @@ Misc:
 |```PIA_ON_PORT_FORWARD=command```|A command to be run when a forwarded port is established. The command will be called with one additional argument of the port number.|
 |```PIA_REGION=swiss```|Region to connect to. Available server region ids are listed [here](https://serverlist.piaservers.net/vpninfo/servers/v4). Example values include ```us_california```, ```ca_ontario```, and ```swiss```. If left empty, reverts to autodetecting the fastest region.|
 |```PIA_LOCAL_ROUTES=xxxxx```|Custom local routes. Many can be specified seperated by a space. (Only applies to wireguard).|
+|```PIA_WRITE_STARTUP_DONE_FILE=path```|When startup has completed successfully message "startup done" will be written to the file in the var. Can be used to manage dependencies (i.e. to launch another program when this one has completed). It is particularly useful when using port forwarding, as normally it wouldn't be clear when we have started up as the port forwarding script runs forever.|
 
 # Manual PIA VPN Connections
 
