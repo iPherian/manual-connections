@@ -158,6 +158,9 @@ else
   cp openvpn_config/openvpn_down_dnsoverwrite.sh /opt/piavpn-manual/openvpn_down.sh
 fi
 
+# make sure we don't load stale gateway info
+rm -f /opt/piavpn-manual/route_info
+
 # Start the OpenVPN interface.
 # If something failed, stop this script.
 # If you get DNS errors because you miss some packages,
