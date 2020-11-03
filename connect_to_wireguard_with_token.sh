@@ -19,6 +19,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+. ./funcs.sh
+
 # This function allows you to check if the required tools have been installed.
 function check_tool() {
   cmd=$1
@@ -151,6 +153,15 @@ if [[ -n "$PIA_LOCAL_ROUTES" ]]; then
   done
 fi
 
+echo "Waiting for WireGuard to fully initialize."
+for i in {5..1}; do
+  echo -n "$i... "
+  sleep 1
+done
+echo "done"
+echo
+echo
+
 # This section will stop the script if PIA_PF is not set to "true".
 if [ "$PIA_PF" != true ]; then
   echo
@@ -159,25 +170,18 @@ if [ "$PIA_PF" != true ]; then
   echo $ WG_SERVER_IP=10.0.0.3 WG_HOSTNAME=piaserver401 \
     PIA_TOKEN=\"\$token\" PIA_PF=true \
     ./connect_to_wireguard_with_token.sh
+  indicate_startup_done_if_needed
   exit
 fi
 
-echo -n "
-This script got started with PIA_PF=true. We will allow WireGuard to fully
-initialize and after that we will try to enable PF by running the following
-command:
+echo " 
+This script got started with PIA_PF=true.
+Starting procedure to enable port forwarding by running the following command:
 $ PIA_TOKEN=$PIA_TOKEN \\
   PF_GATEWAY=\"$(echo "$wireguard_json" | jq -r '.server_vip')\" \\
   PF_HOSTNAME=\"$WG_HOSTNAME\" \\
   ./port_forwarding.sh
-  
-Starting PF in "
-for i in {5..1}; do
-  echo -n "$i... "
-  sleep 1
-done
-echo
-echo
+"
 
 # now that we are inside the vpn, use a local ip for the meta server, it's faster and less error prone.
 export PIA_SERVER_META_IP="10.0.0.1"

@@ -147,6 +147,7 @@ while true; do
       fi
       pia_on_port_forward_has_run="true"
     fi
+    indicate_startup_done_if_needed
 
     # sleep 15 minutes
     sleep 900

@@ -19,6 +19,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+. ./funcs.sh
+
 # This function allows you to check if the required tools have been installed.
 function check_tool() {
   cmd=$1
@@ -219,6 +221,7 @@ if [ "$PIA_PF" != true ]; then
   echo $ OVPN_SERVER_IP=\"$OVPN_SERVER_IP\" OVPN_HOSTNAME=\"$OVPN_HOSTNAME\" \
     PIA_TOKEN=\"$PIA_TOKEN\" CONNECTION_SETTINGS=\"$CONNECTION_SETTINGS\" \
     PIA_PF=true ./connect_to_openvpn_with_token.sh
+  indicate_startup_done_if_needed
   exit
 fi
 

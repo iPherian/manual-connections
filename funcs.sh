@@ -81,4 +81,11 @@ function datetime_to_epoch_secs {
   echo $(date --date "$datetime" +'%s')
 }
 
+function indicate_startup_done_if_needed {
+  if [[ "$PIA_WRITE_STARTUP_DONE_COMPLETED" != "true" ]] && [[ -n "$PIA_WRITE_STARTUP_DONE_FILE" ]]; then
+    echo "startup done" > "$PIA_WRITE_STARTUP_DONE_FILE"
+    export PIA_WRITE_STARTUP_DONE_COMPLETED=true
+  fi
+}
+
 set +a

@@ -21,24 +21,14 @@
 
 . ./required.sh
 
+startup_done_file="$(mktemp)"
+export PIA_WRITE_STARTUP_DONE_FILE="$startup_done_file"
+./get_region_and_token.sh "$@" &
+# rely on systemd to kill us if we take too long to startup
 while true; do
-  if [[ ! $PIA_TOKEN ]]; then
-    export PIA_TOKEN="$(./get_token.sh)"
-  fi
-
-  ./port_forwarding.sh
-  ret=$?
-  # if the port forwarding script has run at least once, then either startup has succeeded or failed permanently, and we don't want to write this file more than once, so remove the var.
-  unset PIA_WRITE_STARTUP_DONE_FILE
-
-  if [[ $ret -eq 0 ]]; then
+  file_contents=$(cat $startup_done_file)
+  if [[ "$file_contents" == "startup done" ]]; then
     exit 0
-  elif [[ $ret -ne 20 ]]; then # code 20 is port expired
-    1>&2 echo "Error: port_forwarding.sh fatal error ($ret). Ending."
-    exit 1
   fi
-  unset PIA_TOKEN
-  # avoid requesting tokens too often
-  sleep 10
-  echo "Port seems to have expired. Trying to get a new one."
+  sleep 1
 done
