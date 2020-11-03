@@ -1,8 +1,22 @@
 # Fork Description
 
-This is a fork of the pia manual connections script which enables running the PIA vpn in a docker container in addition to normal usage.
+This is a fork of the pia manual connections script with support for locked down firewall setups (e.g. that block outgoing by default).
+
+#### Other Features
+
+* Can run in a docker container
 
 ## Config
+
+Firewall Related:
+
+| ENV Var | Function |
+|-------|------|
+|```PIA_ON_DEMAND_UFW_RULES=true```|Before accessing an ip adds a firewall rule allowing outgoing access to it and then removes it afterwards. (requires ufw)|
+|```PIA_ADD_VPN_ENDPOINT_TO_UFW=true```|Adds a firewall rule allowing outgoing access the vpn endpoint (permanently).|
+|```PIA_SERVERLIST_HOST_IP="xxx.xxx.xxx.xxx"```|The ip for the serverlist host ( serverlist.piaservers.net ). When specified allows it to be accessed without having to permit DNS on the open net through the firewall.|
+
+* Caveat: If using ```PIA_ON_DEMAND_UFW_RULES=true```, backup your ufw rules first. If the script encounteres issues and somehow fails to remove the temporary rules, it may leave behind a lot of spam.
 
 Authentication:
 
@@ -14,7 +28,7 @@ Authentication:
 |```PIA_USER=p0123456```|Your username.|
 |```PIA_PASS=xxxxx```|Your password.|
 
-The following ENV vars are optional:
+Misc:
 
 | ENV Var | Function |
 |-------|------|

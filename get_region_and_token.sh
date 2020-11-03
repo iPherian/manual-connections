@@ -19,6 +19,8 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+. ./funcs.sh
+
 # This function allows you to check if the required tools have been installed.
 function check_tool() {
   cmd=$1
@@ -41,7 +43,14 @@ check_tool jq jq
 MAX_LATENCY=${MAX_LATENCY:-0.05}
 export MAX_LATENCY
 
-serverlist_url='https://serverlist.piaservers.net/vpninfo/servers/v4'
+curl_serverlist_req_extra_args=""
+serverlist_host="serverlist.piaservers.net"
+if [[ -n "${PIA_SERVERLIST_HOST_IP}" ]]; then
+  echo "overriding ip for serverlist_host: $PIA_SERVERLIST_HOST_IP"
+  curl_serverlist_req_extra_args="--resolve $serverlist_host:443:$PIA_SERVERLIST_HOST_IP"
+fi
+
+serverlist_url="https://$serverlist_host/vpninfo/servers/v4"
 
 # This function checks the latency you have to a specific region.
 # It will print a human-readable message to stderr,
@@ -51,20 +60,31 @@ printServerLatency() {
   regionID="$2"
   regionName="$(echo ${@:3} |
     sed 's/ false//' | sed 's/true/(geo)/')"
+  ufw_allow_if_requested $serverIP 1>/dev/null
   time=$(LC_NUMERIC=en_US.utf8 curl -o /dev/null -s \
     --connect-timeout $MAX_LATENCY \
     --write-out "%{time_connect}" \
     http://$serverIP:443)
-  if [ $? -eq 0 ]; then
-    >&2 echo Got latency ${time}s for region: $regionName
+  curl_exit_code=$?
+  ufw_unallow_if_requested $serverIP 1>/dev/null
+  if [ $curl_exit_code -eq 0 ]; then
+    1>&2 echo Got latency ${time}s for region: $regionName
     echo $time $regionID $serverIP
+  else
+    1>&2 echo Got timeout or error for region $regionName
   fi
 }
 export -f printServerLatency
 
 echo -n "Getting the server list... "
 # Get all region data since we will need this on multiple occasions
-all_region_data=$(curl -s "$serverlist_url" | head -1)
+if [[ -n "${PIA_SERVERLIST_HOST_IP}" ]]; then
+  ufw_allow_if_requested $PIA_SERVERLIST_HOST_IP 1>/dev/null
+fi
+all_region_data=$(curl $curl_serverlist_req_extra_args -s "$serverlist_url" | head -1)
+if [[ -n "${PIA_SERVERLIST_HOST_IP}" ]]; then
+  ufw_unallow_if_requested $PIA_SERVERLIST_HOST_IP 1>/dev/null
+fi
 
 # If the server list has less than 1000 characters, it means curl failed.
 if [[ ${#all_region_data} -lt 1000 ]]; then
@@ -178,10 +198,12 @@ echo "The ./get_region_and_token.sh script got started with PIA_USER and PIA_PAS
 so we will also use a meta service to get a new VPN token."
 
 echo "Trying to get a new token by authenticating with the meta service..."
+ufw_allow_if_requested $bestServer_meta_IP 1>/dev/null
 generateTokenResponse=$(curl -s -u "$PIA_USER:$PIA_PASS" \
   --connect-to "$bestServer_meta_hostname::$bestServer_meta_IP:" \
   --cacert "ca.rsa.4096.crt" \
   "https://$bestServer_meta_hostname/authv3/generateToken")
+ufw_unallow_if_requested $bestServer_meta_IP 1>/dev/null
 echo "$generateTokenResponse"
 
 if [ "$(echo "$generateTokenResponse" | jq -r '.status')" != "OK" ]; then
@@ -203,7 +225,13 @@ if [ "$PIA_PF" != true ]; then
   PIA_PF="false"
 fi
 
+: ${PIA_ADD_VPN_ENDPOINT_TO_UFW:=false}
+
 if [[ $PIA_AUTOCONNECT == wireguard ]]; then
+  if "$PIA_ADD_VPN_ENDPOINT_TO_UFW"; then
+    echo "adding vpn endpoint $bestServer_WG_IP to ufw"
+    ufw_allow $bestServer_WG_IP
+  fi
   echo The ./get_region_and_token.sh script got started with
   echo PIA_AUTOCONNECT=wireguard, so we will automatically connect to WireGuard,
   echo by running this command:
@@ -222,6 +250,10 @@ if [[ $PIA_AUTOCONNECT == openvpn* ]]; then
   if [[ $PIA_AUTOCONNECT == *tcp* ]]; then
     serverIP=$bestServer_OT_IP
     serverHostname=$bestServer_OT_hostname
+  fi
+  if "$PIA_ADD_VPN_ENDPOINT_TO_UFW"; then
+    echo "adding vpn endpoint $serverIP to ufw"
+    ufw_allow $serverIP
   fi
   echo The ./get_region_and_token.sh script got started with
   echo PIA_AUTOCONNECT=$PIA_AUTOCONNECT, so we will automatically
