@@ -179,7 +179,10 @@ done
 echo
 echo
 
+# now that we are inside the vpn, use a local ip for the meta server, it's faster and less error prone.
+export PIA_SERVER_META_IP="10.0.0.1"
+
 PIA_TOKEN=$PIA_TOKEN \
   PF_GATEWAY="$(echo "$wireguard_json" | jq -r '.server_vip')" \
   PF_HOSTNAME="$WG_HOSTNAME" \
-  ./port_forwarding.sh
+  ./port_forwarding_auto.sh

@@ -19,6 +19,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# Exit Codes
+#
+# 1     general error
+# 10    fatal bind port failure
+# 20    port expiration
+
+. ./funcs.sh
 
 # Check if the mandatory environment variables are set.
 if [[ ! $PF_GATEWAY || ! $PIA_TOKEN || ! $PF_HOSTNAME ]]; then
@@ -85,6 +92,7 @@ signature="$(echo "$payload_and_signature" | jq -r '.signature')"
 # - expires_at: this is the date+time when the port expires
 payload="$(echo "$payload_and_signature" | jq -r '.payload')"
 port="$(echo "$payload" | base64 -d | jq -r '.port')"
+echo $port > "/opt/piavpn-manual/pia_port"
 
 # The port normally expires after 2 months. If you consider
 # 2 months is not enough for your setup, please open a ticket.
@@ -96,6 +104,8 @@ echo "The signature is OK.
 --> The port is $port and it will expire on $expires_at. <--
 
 Trying to bind the port..."
+
+pia_on_port_forward_has_run="false"
 
 # Now we have all required data to create a request to bind the port.
 # We will repeat this request every 15 minutes, in order to keep the port
@@ -115,10 +125,28 @@ while true; do
     export bind_port_response
     if [ "$(echo "$bind_port_response" | jq -r '.status')" != "OK" ]; then
       echo "The API did not return OK when trying to bind port. Exiting."
-      exit 1
+      now="$(date)"
+      now_secs=$(datetime_to_epoch_secs "$now")
+      expires_at_secs=$(datetime_to_epoch_secs "$expires_at")
+      five_minutes_in_secs=300
+      # if we're a short time away from expiration, the error was probably expiration
+      if (( now_secs > ( expires_at_secs - five_minutes_in_secs ) )); then
+        exit 20 # expiration
+      else
+        exit 10 # fatal bind port failure
+      fi
     fi
     echo Port $port refreshed on $(date). \
       This port will expire on $(date --date="$expires_at")
+    if [[ -n "$PIA_ON_PORT_FORWARD" ]] && [[ "$pia_on_port_forward_has_run" != "true" ]]; then
+      eval $PIA_ON_PORT_FORWARD $port
+      ret=$?
+      if [[ $ret -ne 0 ]]; then
+        1>&2 echo "PIA_ON_PORT_FORWARD command failed ($ret)"
+        exit 1
+      fi
+      pia_on_port_forward_has_run="true"
+    fi
 
     # sleep 15 minutes
     sleep 900
