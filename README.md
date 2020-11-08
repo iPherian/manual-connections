@@ -1,6 +1,3 @@
-# Modifications from the original
- * Add PIA_REGION environment variable which forces the specified region.
-
 # Manual PIA VPN Connections
 
 This repository contains documentation on how to create native WireGuard and OpenVPN connections to our __NextGen network__, and also on how to enable Port Forwarding in case you require this feature. You will find a lot of information below. However if you prefer quick test, here is the __TL/DR__:

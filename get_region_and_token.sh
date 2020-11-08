@@ -91,13 +91,16 @@ else
 fi
 
 if [[ -n $PIA_REGION ]]; then
+  echo PIA_REGION was set to: $PIA_REGION
   echo -n Checking if specified region works...
   bestRegion="$(echo "$summarized_region_data" | awk "{if (\$2 == \"$PIA_REGION\") print \$2;}")"
   if [[ -n $bestRegion ]]; then
     echo yes
   else
     echo no.
-    echo No servers found in $PIA_REGION with the required features.
+    echo No servers found in region $PIA_REGION with the required features.
+    echo Make sure PIA_REGION is set correctly, or perhaps turn off port forwarding
+    echo to have more servers available.
     exit 1
   fi
 else
