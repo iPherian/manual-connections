@@ -109,14 +109,13 @@ else
   bestRegion="$(echo "$summarized_region_data" |
     xargs -I{} bash -c 'printServerLatency {}' |
     sort | head -1 | awk '{ print $2 }')"
-fi
-
-if [ -z "$bestRegion" ]; then
-  echo ...
-  echo No region responded within ${MAX_LATENCY}s, consider using a higher timeout.
-  echo For example, to wait 1 second for each region, inject MAX_LATENCY=1 like this:
-  echo $ MAX_LATENCY=1 ./get_region_and_token.sh
-  exit 1
+  if [[ -z "$bestRegion" ]]; then
+    echo ...
+    echo No region responded within ${MAX_LATENCY}s, consider using a higher timeout.
+    echo For example, to wait 1 second for each region, inject MAX_LATENCY=1 like this:
+    echo $ MAX_LATENCY=1 ./get_region_and_token.sh
+    exit 1
+  fi
 fi
 
 # Get all data for the best region
