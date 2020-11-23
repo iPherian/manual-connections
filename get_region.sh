@@ -178,14 +178,15 @@ if test -f "$tokenLocation"; then
   echo "Using existing token.
   "
 else
-  if [[ ! $PIA_USER || ! $PIA_PASS ]]; then
-    echo If you want this script to automatically get a token from the Meta
-    echo service, please add the variables PIA_USER and PIA_PASS. Example:
-    echo $ PIA_USER=p0123456 PIA_PASS=xxx ./get_region.sh
-    exit 0
-  else
-    echo -n "Checking login credentials..."
-    echo PIA_USER=$PIA_USER PIA_PASS=$PIA_PASS ./get_token
+  echo -n "Checking login credentials..."
+  PIA_USER=$PIA_USER
+    PIA_PASS=$PIA_PASS
+    PIA_SERVER_META_IP=$bestServer_meta_IP
+    PIA_SERVER_META_HOSTNAME=$bestServer_meta_hostname
+    ./get_token
+  if ! test -f "$tokenLocation"; then
+    echo "Failed to login."
+    exit 1
   fi
 fi
 token=$(<$tokenLocation)
