@@ -38,6 +38,8 @@ mkdir -p /opt/piavpn-manual
 # Erase old latencyList file
 rm -f /opt/piavpn-manual/latencyList
 touch /opt/piavpn-manual/latencyList
+# Erase old bestServer file
+rm -f /opt/piavpn-manual/bestServer
 
 # This allows you to set the maximum allowed latency in seconds.
 # All servers that respond slower than this will be ignored.
@@ -62,7 +64,7 @@ printServerLatency() {
     http://$serverIP:443)
   if [ $? -eq 0 ]; then
     >&2 echo Got latency ${time}s for region: $regionName
-    echo $time $regionID $serverIP
+    echo $time $regionID $serverIP $regionName
     # Write a list of servers with acceptable latancy
     # to /opt/piavpn-manual/latencyList
     echo $time $regionID $serverIP $regionName >> /opt/piavpn-manual/latencyList
@@ -143,6 +145,7 @@ bestServer_OT_IP="$(echo $regionData | jq -r '.servers.ovpntcp[0].ip')"
 bestServer_OT_hostname="$(echo $regionData | jq -r '.servers.ovpntcp[0].cn')"
 bestServer_OU_IP="$(echo $regionData | jq -r '.servers.ovpnudp[0].ip')"
 bestServer_OU_hostname="$(echo $regionData | jq -r '.servers.ovpnudp[0].cn')"
+echo "$bestServer_meta_IP $bestServer_meta_hostname $bestServer_WG_IP $bestServer_WG_hostname $bestServer_OT_IP $bestServer_OT_hostname $bestServer_OU_IP $bestServer_OU_hostname" > /opt/piavpn-manual/bestServer
 
 echo -n The selected region is "$(echo $regionData | jq -r '.name')"
 if echo $regionData | jq -r '.geo' | grep true > /dev/null; then
@@ -193,7 +196,9 @@ token=$(<$tokenLocation)
 if [[ $PIA_AUTOCONNECT == no ]]; then
   echo "A list of servers and connection details, ordered by latency can be 
 found in at : 
-/opt/piavpn-manual/latencyList"
+/opt/piavpn-manual/latencyList
+Details for the best/selected server can be found in at :
+/opt/piavpn-manual/bestServer"
   exit 0
 fi
 
@@ -208,7 +213,7 @@ if [[ $PIA_AUTOCONNECT == wireguard ]]; then
   echo
   PIA_PF=$PIA_PF PIA_TOKEN="$token" WG_SERVER_IP=$bestServer_WG_IP \
     WG_HOSTNAME=$bestServer_WG_hostname ./connect_to_wireguard_with_token.sh
-  rm -f /opt/piavpn-manual/token /opt/piavpn-manual/latencyList
+  rm -f /opt/piavpn-manual/token /opt/piavpn-manual/latencyList /opt/piavpn-manual/bestServer
   exit 0
 fi
 
@@ -234,6 +239,6 @@ if [[ $PIA_AUTOCONNECT == openvpn* ]]; then
     OVPN_HOSTNAME=$serverHostname \
     CONNECTION_SETTINGS=$PIA_AUTOCONNECT \
     ./connect_to_openvpn_with_token.sh
-  rm -f /opt/piavpn-manual/token /opt/piavpn-manual/latencyList
+  rm -f /opt/piavpn-manual/token /opt/piavpn-manual/latencyList /opt/piavpn-manual/bestServer
   exit 0
 fi

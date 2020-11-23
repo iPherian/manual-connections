@@ -69,16 +69,6 @@ export MAX_LATENCY
 echo "MAX_LATENCY=\"$MAX_LATENCY\"
 "
 
-echo -n "Checking login credentials..."
-# Confirm MAX_LATENCY allowance, then confirm credentials and generate token
-./get_token.sh
-
-# If the script failed to generate an authentication token, the script will exit early.
-tokenLocation=/opt/piavpn-manual/token
-if [ ! -f "$tokenLocation" ]; then
-  exit 1
-fi
-
 # This section asks for connection preferences that are
 # relevant to manual server selection
 echo -n "Do you want a forwarding port assigned ([N]o/[y]es): "
@@ -139,6 +129,34 @@ if echo ${selectServer:0:1} | grep -iq y; then
 else
   echo You will auto-connect to the server with the lowest latency.
   echo
+fi
+
+PIA_AUTOCONNECT=no
+  CONNECT_TO=$CONNECT_TO
+  ./get_region
+
+# get_region outputs best/selected server to this file
+bestServerLocation=/opt/piavpn-manual/bestServer
+if [ ! -f "$bestServerLocation" ]; then
+  echo "Unable to select a region."
+  exit 1
+fi
+
+bestServer_meta_IP="$(cat \"$bestServerLocation\" | awk '{ print $1 }' )"
+bestServer_meta_hostname="$(cat \"$bestServerLocation\" | awk '{ print $2 }' )"
+
+echo -n "Checking login credentials..."
+# Confirm MAX_LATENCY allowance, then confirm credentials and generate token
+PIA_USER=$PIA_USER
+  PIA_PASS=$PIA_PASS
+  PIA_SERVER_META_IP=$bestServer_meta_IP
+  PIA_SERVER_META_HOSTNAME=$bestServer_meta_hostname
+  ./get_token.sh
+
+# If the script failed to generate an authentication token, the script will exit early.
+tokenLocation=/opt/piavpn-manual/token
+if [ ! -f "$tokenLocation" ]; then
+  exit 1
 fi
 
 # This section asks for user connection preferences
