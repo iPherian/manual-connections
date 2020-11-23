@@ -205,7 +205,7 @@ fi
 
 # Connect with WireGuard and clear authentication token file and latencyList
 if [[ $PIA_AUTOCONNECT == wireguard ]]; then
-  echo The ./get_region_and_token.sh script got started with
+  echo The ./get_region.sh script got started with
   echo PIA_AUTOCONNECT=wireguard, so we will automatically connect to WireGuard,
   echo by running this command:
   echo $ PIA_TOKEN=\"$token\" \\

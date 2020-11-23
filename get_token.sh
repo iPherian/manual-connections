@@ -65,6 +65,6 @@ echo OK!
 echo
 echo "$generateTokenResponse"
 token="$(echo "$generateTokenResponse" | jq -r '.token')"
-echo $token > /opt/piavpn-manual/token || exit 1
+echo $token > "$tokenLocation" || exit 1
 echo "This token will expire in 24 hours.
 "
