@@ -78,8 +78,8 @@ for i in $(eval echo {1..$max_tries}); do
     1>&2 echo
     1>&2 echo "You can also try debugging by manually running the curl"
     1>&2 echo "command (replace user and pass with the real values):"
-    1>&2 echo $ curl -vs -u "PIA_USER:PIA_PASS" --cacert ca.rsa.4096.crt \
-      --connect-to "$PIA_SERVER_META_HOSTNAME::$PIA_SERVER_META_IP:" \
+    1>&2 echo $ curl -vs -u \"PIA_USER:PIA_PASS\" --cacert ca.rsa.4096.crt \
+      --connect-to \"$PIA_SERVER_META_HOSTNAME::$PIA_SERVER_META_IP:\" \
       https://$PIA_SERVER_META_HOSTNAME/authv3/generateToken
     1>&2 echo "Waiting before possibly retrying again..."
     if [[ $i -lt 3 ]]; then
