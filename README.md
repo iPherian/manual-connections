@@ -1,6 +1,6 @@
 # Fork Description
 
-This is a fork of the pia manual connections script with support for locked down firewall setups (e.g. that block outgoing by default).
+This is a fork of the pia manual connections script with support for a system that only allows vpn traffic. (requires UFW firewall)
 
 #### Other Features
 
@@ -11,9 +11,27 @@ This is a fork of the pia manual connections script with support for locked down
   * Instructions: copy *.service file to /etc/systemd/system then customize vars prefixed with $ (e.g. $VAR)
 * Can run in a docker container
 
+## Setup
+
+If you want a vpn-only system, make sure you have at least these rules:
+
+```shell
+# first make sure you have a way to login
+# e.g. if you ssh in:
+ufw allow ssh
+# deny everything by default:
+ufw default deny incoming
+ufw default deny outgoing
+# but allow the vpn:
+ufw allow in on tun06
+ufw allow out on tun06
+```
+
 ## Config
 
 Firewall Related:
+
+( all of these rules are required for a vpn-only system )
 
 | ENV Var | Function |
 |-------|------|
