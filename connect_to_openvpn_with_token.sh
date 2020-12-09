@@ -205,7 +205,7 @@ if [ "$connected" != true ]; then
   exit 1
 fi
 
-# now that we are inside the vpn, use a local ip for the meta server, it's faster and less error prone.
+# when inside the vpn you must use a local ip for the meta server
 export PIA_SERVER_META_IP="10.0.0.1"
 
 echo "Initialization Sequence Complete!
