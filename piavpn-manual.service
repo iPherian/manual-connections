@@ -5,6 +5,15 @@ After=network-online.target
 
 [Service]
 Type=forking
+# See README.md, Config section, for more details on env vars.
+#
+# Vars in the below section are needed for a vpn-only system:
+# ( uncomment to use )
+# --------------
+#Environment="PIA_SERVERLIST_HOST_IP=xxx.xxx.xxx.xxx"
+#Environment="PIA_ADD_VPN_ENDPOINT_TO_UFW=true"
+#Environment="PIA_ON_DEMAND_UFW_RULES=true"
+# --------------
 Environment="PIA_AUTH_FILE=$AUTH_FILE"
 Environment="PIA_DNS=true"
 Environment="PIA_AUTOCONNECT=openvpn_udp_standard"

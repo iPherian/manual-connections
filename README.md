@@ -8,7 +8,6 @@ This is a fork of the pia manual connections script with support for a system th
   * can run a custom command when a forwarded port is established (see ```PIA_ON_PORT_FORWARD```)
 * Writes forwarded port to file for use by other services (```/opt/piavpn-manual/pia_port```)
 * Can run as a systemd service
-  * Instructions: copy *.service file to /etc/systemd/system then customize vars prefixed with $ (e.g. $VAR)
 * Can run in a docker container
 
 ## Setup
@@ -25,6 +24,32 @@ ufw default deny outgoing
 # but allow the vpn:
 ufw allow in on tun06
 ufw allow out on tun06
+```
+
+## Example
+
+(in all examples, customize vars prefixed with $ (e.g. $VAR), see Config section for details)
+
+Easiest way is just to run it as a systemd service:
+
+1. copy *.service file to /etc/systemd/system
+2. customize vars as needed
+3. ```systemctl start piavpn-manual.service```
+4. And if you want it to run at startup:
+    - ```systemctl enable piavpn-manual.service```
+
+Or you can run it manually:
+
+```shell
+PIA_SERVERLIST_HOST_IP=xxx.xxx.xxx.xxx \
+  PIA_ADD_VPN_ENDPOINT_TO_UFW=true \
+  PIA_ON_DEMAND_UFW_RULES=true \
+  PIA_AUTH_FILE=$AUTH_FILE \
+  PIA_DNS=true \
+  PIA_AUTOCONNECT=openvpn_udp_standard \
+  PIA_PF=false \
+  PIA_REGION=$REGION \
+  ./get_region_and_token.sh
 ```
 
 ## Config
