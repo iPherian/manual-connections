@@ -31,7 +31,7 @@ ufw allow out on tun06
 
 Firewall Related:
 
-( all of these rules are required for a vpn-only system )
+( all of these vars are required for a vpn-only system )
 
 | ENV Var | Function |
 |-------|------|
